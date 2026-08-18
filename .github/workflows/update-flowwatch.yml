@@ -15,10 +15,11 @@ concurrency:
 jobs:
   update:
     name: 检查最新正式版本
-    runs-on: ubuntu-latest
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-      - name: 读取最新发布并生成 Formula
+      - id: formula
+        name: 读取最新发布并生成 Formula
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -29,12 +30,28 @@ jobs:
           scripts/update-flowwatch.sh "$tag" SHA256SUMS Formula/flowwatch.rb
           rm SHA256SUMS
           echo "FLOWWATCH_TAG=$tag" >> "$GITHUB_ENV"
-      - name: 提交变化
-        run: |
           if git diff --quiet -- Formula/flowwatch.rb; then
-            echo "Formula 已是最新版本。"
-            exit 0
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+      - name: 挂载本地 Tap
+        if: steps.formula.outputs.changed == 'true'
+        run: brew tap JunieXD/tap "$GITHUB_WORKSPACE"
+      - name: 检查 Formula 样式
+        if: steps.formula.outputs.changed == 'true'
+        run: brew style JunieXD/tap/flowwatch
+      - name: 审计 Formula
+        if: steps.formula.outputs.changed == 'true'
+        run: brew audit --strict JunieXD/tap/flowwatch
+      - name: 安装和测试
+        if: steps.formula.outputs.changed == 'true'
+        run: |
+          brew install JunieXD/tap/flowwatch
+          brew test JunieXD/tap/flowwatch
+      - name: 提交变化
+        if: steps.formula.outputs.changed == 'true'
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Formula/flowwatch.rb
