@@ -6,9 +6,20 @@ TAG="${1:-}"
 CHECKSUMS="${2:-}"
 OUTPUT="${3:-Formula/flowwatch.rb}"
 case "$TAG" in
-    v[0-9]*.[0-9]*.[0-9]*) VERSION="${TAG#v}" ;;
+    v*) VERSION="${TAG#v}" ;;
     *) echo "版本标签无效：${TAG}" >&2; exit 2 ;;
 esac
+case "$VERSION" in
+    "" | *[!0-9.]*) echo "版本标签无效：${TAG}" >&2; exit 2 ;;
+esac
+OLD_IFS="$IFS"
+IFS=.
+set -- $VERSION
+IFS="$OLD_IFS"
+if [ "$#" -ne 3 ] || [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+    echo "版本标签无效：${TAG}" >&2
+    exit 2
+fi
 if [ ! -f "$CHECKSUMS" ]; then
     echo "找不到校验和文件：${CHECKSUMS}" >&2
     exit 2
