@@ -1,0 +1,27 @@
+name: 持续检查
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: 检查 Formula
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - name: 检查脚本语法
+        run: sh -n scripts/update-flowwatch.sh
+      - name: 挂载本地 Tap
+        run: brew tap JunieXD/tap "$GITHUB_WORKSPACE"
+      - name: 检查 Formula 样式
+        run: brew style JunieXD/tap/flowwatch
+      - name: 审计 Formula
+        run: brew audit --strict JunieXD/tap/flowwatch
+      - name: 安装和测试
+        run: |
+          brew install JunieXD/tap/flowwatch
+          brew test JunieXD/tap/flowwatch

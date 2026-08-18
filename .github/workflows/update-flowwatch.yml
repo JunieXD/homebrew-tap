@@ -1,0 +1,42 @@
+name: 更新 FlowWatch Formula
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-flowwatch
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: 检查最新正式版本
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: 读取最新发布并生成 Formula
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(gh api repos/JunieXD/FlowWatch/releases/latest --jq .tag_name)"
+          curl -fsSL --retry 3 \
+            "https://github.com/JunieXD/FlowWatch/releases/download/${tag}/SHA256SUMS" \
+            -o SHA256SUMS
+          scripts/update-flowwatch.sh "$tag" SHA256SUMS Formula/flowwatch.rb
+          rm SHA256SUMS
+          echo "FLOWWATCH_TAG=$tag" >> "$GITHUB_ENV"
+      - name: 提交变化
+        run: |
+          if git diff --quiet -- Formula/flowwatch.rb; then
+            echo "Formula 已是最新版本。"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/flowwatch.rb
+          git commit -m "flowwatch: update to ${FLOWWATCH_TAG}"
+          git push
