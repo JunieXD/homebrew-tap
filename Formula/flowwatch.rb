@@ -1,20 +1,16 @@
 class Flowwatch < Formula
   desc "Lightweight, privacy-focused macOS per-application traffic monitor"
   homepage "https://github.com/JunieXD/FlowWatch"
-  version "0.1.4"
   license "MIT"
+  depends_on macos: :ventura
 
-  on_arm do
+  if Hardware::CPU.arm?
     url "https://github.com/JunieXD/FlowWatch/releases/download/v0.1.4/flowwatch-aarch64-apple-darwin.tar.gz"
     sha256 "e3a5227241ef18cc486e0e3d6fa6fb670a41071b909b566a8f1715f86e2aaa9b"
-  end
-
-  on_intel do
+  else
     url "https://github.com/JunieXD/FlowWatch/releases/download/v0.1.4/flowwatch-x86_64-apple-darwin.tar.gz"
     sha256 "f216dbf23da293d4e09033944747bdac3979b0ba4773f1bf6e8a7491db03039b"
   end
-
-  depends_on macos: :ventura
 
   def install
     bin.install "flowwatch"

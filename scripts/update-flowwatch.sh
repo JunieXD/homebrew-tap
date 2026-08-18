@@ -49,20 +49,16 @@ cat > "$TEMPORARY" <<FORMULA
 class Flowwatch < Formula
   desc "Lightweight, privacy-focused macOS per-application traffic monitor"
   homepage "https://github.com/JunieXD/FlowWatch"
-  version "${VERSION}"
   license "MIT"
+  depends_on macos: :ventura
 
-  on_arm do
+  if Hardware::CPU.arm?
     url "https://github.com/JunieXD/FlowWatch/releases/download/v${VERSION}/flowwatch-aarch64-apple-darwin.tar.gz"
     sha256 "${ARM64_SHA256}"
-  end
-
-  on_intel do
+  else
     url "https://github.com/JunieXD/FlowWatch/releases/download/v${VERSION}/flowwatch-x86_64-apple-darwin.tar.gz"
     sha256 "${X86_64_SHA256}"
   end
-
-  depends_on macos: :ventura
 
   def install
     bin.install "flowwatch"
