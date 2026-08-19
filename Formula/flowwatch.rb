@@ -5,11 +5,11 @@ class Flowwatch < Formula
   depends_on macos: :ventura
 
   if Hardware::CPU.arm?
-    url "https://github.com/JunieXD/FlowWatch/releases/download/v0.2.0/flowwatch-aarch64-apple-darwin.tar.gz"
-    sha256 "4b0c60782d3578da236b35bc885f52a19258d8d2638f33b466cb06b4862f00b2"
+    url "https://github.com/JunieXD/FlowWatch/releases/download/v0.2.2/flowwatch-aarch64-apple-darwin.tar.gz"
+    sha256 "78acf1b5cabb5cf67f2375ebcdbad3359617625dcac3b29ea52faccd7d98b4a3"
   else
-    url "https://github.com/JunieXD/FlowWatch/releases/download/v0.2.0/flowwatch-x86_64-apple-darwin.tar.gz"
-    sha256 "b6ca9c065987cb987eef8eac4f65332cd3b53fc7491e645d356f07ff434524af"
+    url "https://github.com/JunieXD/FlowWatch/releases/download/v0.2.2/flowwatch-x86_64-apple-darwin.tar.gz"
+    sha256 "855d6cf8c2a9942d8d949334dde74e24ba8d8fdd6eb438b2b4a0ea256f016931"
   end
 
   def install
